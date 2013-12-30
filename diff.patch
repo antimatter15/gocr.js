@@ -1,0 +1,24 @@
+diff --git a/gocr-0.50/src/job.c b/gocr-0.50/src/job.c
+index 88cf2f9..6614f02 100644
+--- a/gocr-0.50/src/job.c
++++ b/gocr-0.50/src/job.c
+@@ -70,6 +70,10 @@ void job_init_image(job_t *job) {
+ 
+ }
+ 
++void free_box_adapter(struct box *box){
++  free_box(box);
++}
++
+ /* free job structure */
+ void job_free_image(job_t *job) {
+ 
+@@ -81,7 +85,7 @@ void job_free_image(job_t *job) {
+    * list_free( &job->tmp.dblist );
+    */
+  
+-  list_and_data_free(&(job->res.boxlist), (void (*)(void *))free_box);
++  list_and_data_free(&(job->res.boxlist), (void (*)(void *))free_box_adapter);
+ 
+   /* FIXME jb: free pix */
+   if (job->src.p.p) { free(job->src.p.p); job->src.p.p=NULL; }
