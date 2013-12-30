@@ -1,0 +1,3 @@
+# this is not the final version!
+
+cp ./bin/gocr /usr/local/bin/gocr

@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+#	score - compute a character-based error score
+#
+#	usage: score  file1  file2
+#
+spread(){
+#	write each input character to a separate line
+expand $1 | awk '
+{
+    n=length($0);
+    for (i=1; i<=n; i++) printf("%c\n", substr($0,i,1));
+    printf("end of line\n");
+}'
+}
+
+# count the character deletions and insertions
+numerator=`diff <(spread $1) <(spread $2) | egrep -c '<|>'`
+# count the characters in both files
+denominator=`cat $1 $2 | wc -c`
+perl -e "printf(\"%9.6f\\n\", $numerator/$denominator )"
+
+diff <(spread $1) <(spread $2) | awk '
+/^[1-9]/{
+  if (length(del)+length(add)){
+     printf("s/%s/%s/\n",del,add); 
+     del=""; 
+     add=""; 
+     next;
+  }
+}
+/^< end of line/{printf("s//\\n/\n"); next;} # delete a line
+/^> end of line/{printf("s/\\n//\n"); next;} # insert a line
+/^</{if (NF>1) {del=del $2;} else printf("s/ //\n");}	# delete a character
+/^>/{if (NF>1) {add=add $2;} else printf("s// /\n");}	# insert a character
+' | sort | uniq -c | sort -n | tail

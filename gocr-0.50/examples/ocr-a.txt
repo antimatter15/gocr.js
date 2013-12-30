@@ -1,0 +1,6 @@
+# OCR-A-Font: monospaced 10x16 x-centered on 15..16x29 m=0,+4,+12,+4
+#
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz   
+1234567890 !"$%&/()=?\{}[]
++*#'<>,;.:- S_Y_

@@ -1,0 +1,166 @@
+.\"             -*-Nroff-*-
+.\" Copyright 2000 Red Hat, Inc.
+.TH GOCR 1 "29 Mar 2009" "Linux" "User's Manual"
+.SH NAME
+gocr \- command line text recognition tool
+.SH SYNOPSIS
+.B gocr
+[\fIOPTION\fR] [\fB-i\fR] \fIpnm-file\fR
+.fi
+.SH DESCRIPTION
+gocr is an optical character recognition program that can be used from
+the command line.  It takes input in PNM, PGM, PBM, PPM, or PCX
+format, and writes recognized text to \fBstdout\fR.  If the \fIpnm
+file\fR is a single dash, PNM data is read from \fBstdin\fR.
+If gzip, bzip2 and netpbm-progs are installed and your system
+supports popen(3) also pnm.gz, pnm.bz2, png, jpg, jpeg, tiff,
+gif, bmp, ps (only single pages) and eps are supported as input files
+(not as input stream), where pnm can be replaced
+by one of ppm, pgm and pbm.
+.SH OPTIONS
+.TP
+\fB\-h\fR
+show usage information
+.TP
+\fB\-i\fR \fIfile\fR
+read input from \fIfile\fR (or \fBstdin\fR if \fIfile\fR is a single
+dash)
+.TP
+\fB\-o\fR \fIfile\fR
+send output to \fIfile\fR instead of \fBstdout\fR
+.TP
+\fB\-e\fR \fIfile\fR
+send errors to \fIfile\fR instead of \fBstderr\fR or to \fBstdout\fR
+if \fIfile\fR is a dash
+.TP
+\fB\-x\fR \fIfile\fR
+progress output to \fIfile\fR
+(\fIfile\fR can be a file name, a fifo name or a file descriptor 1...255),
+this is useful for GUI developpers to show the OCR progress, the file
+descriptor argument is only available, if compiled with __USE_POSIX defined
+.TP
+\fB\-p\fR \fIpath\fR
+database path, a final slash must be included, default is ./db/,
+this path will be populated with images of learned characters
+.TP
+\fB\-f\fR \fIformat\fR
+output \fIformat\fR of the recognized text 
+(ISO8859_1 TeX HTML XML UTF8 ASCII), XML will also output position and
+probability data 
+.TP
+\fB\-l\fR \fIlevel\fR
+set grey level to \fIlevel\fR (0<160<=255, default:
+0 for autodetect), darker pixels belong to characters, brighter pixels
+are interpreted as background of the input image
+.TP
+\fB\-d\fR \fIsize\fR
+set dust size in pixels (clusters smaller than this are removed),
+0 means no clusters are removed, the default is -1 for auto detection
+.TP
+\fB\-s\fR \fInum\fR
+set spacewidth between words in units of dots (default: 0 for autodetect),
+wider widths are interpreted as word spaces, smaller as character spaces
+.TP
+\fB\-v\fR \fIverbosity\fR
+be verbose to stderr; \fIverbosity\fR is a bitfield
+.TP
+\fB\-c \fIstring\fR
+only verbose output of characters from \fIstring\fR to stderr,
+more output is generated for all characters within the string,
+the underscore stands for unknown chars, this function is usefull
+to limit debug information to the necessary one 
+.TP
+\fB\-C \fIstring\fR
+only recognise characters from \fIstring\fR, this is a filter function
+in cases where the interest is only to a part of the character alphabet,
+you can use 0-9 or a-z to specify ranges, use -- to detect the minus sign
+.TP
+\fB\-a\fR \fIcertainty\fR
+set value for certainty of recognition (0..100; default: 95),
+characters with a higher certainty are accepted, characters with a lower
+certainty are treated as unknown (not recognized); set higher values, if
+you want to have only more certain recognized characters
+.TP
+\fB\-u \fIstring\fR
+output this string for every unrecognized character (default is "_")
+.TP
+\fB\-m\fR \fImode\fR
+set oprational mode; mode is a bitfield (default: 0)
+.TP
+\fB\-n\fR \fIbool\fR
+if \fIbool\fR is non-zero, only recognise numbers
+(this is now obsolete, use -C "0123456789")
+.PP
+The verbosity is specified as a bitfield:
+.TP 10
+.B 1
+print more info
+.TP
+.B 2
+list shapes of boxes (see -c) to stderr
+.TP
+.B 4
+list pattern of boxes (see -c) to stderr
+.TP
+.B 8
+print pattern after recognition for debugging
+.TP
+.B 16
+print debug information about recognition of lines to stderr
+.TP
+.B 32
+create outXX.png with boxes and lines marked on each general OCR-step
+.PP
+The operation modes are:
+.TP 10
+.B 2
+use database to recognize characters which are not recognized by
+other algorithms, (early development)
+.TP
+.B 4
+switching on layout analysis or zoning (development)
+.TP
+.B 8
+don't compare unrecognized characters to recognized one
+.TP
+.B 16
+don't try to divide overlapping characters to two or three single characters 
+.TP
+.B 32
+don't do context correction
+.TP
+.B 64
+character packing, before recognition starts, similar characters
+are searched and only one of this characters will be send to the
+recognition engine (development)
+.TP
+.B 130
+extend database, prompts user for unidentified characters
+and extends the database with users answer (128+2, early development)
+.TP
+.B 256
+switch off the recognition engine (makes sense together with -m 2)
+.SH
+.SH AUTHOR
+Joerg Schulenburg (see http://jocr.sourceforge.net/ for EMAIL)
+.br
+First version of man page by Tim Waugh <twaugh@redhat.com>
+.SH VERSION INFORMATION
+This man page documents \fBgocr\fR, version 0.41.
+.SH REPORTING BUGS
+Report bugs to Joerg Schulenburg
+.SH SEE ALSO
+More details can be found at /usr/share/doc/gocr-\fBX.XX\fR/gocr.html.
+Also read /usr/share/doc/gocr-\fBX.XX\fR/README to learn, how to improve
+results.
+.SH EXAMPLES
+.TP
+.B gocr -v 33 text1.pbm
+output verbose information, out30.png is created to see details of
+recognition process
+.TP
+.B gocr -v 7 -c _YV text1.pbm
+verbose output for unknown chars and chars Y and V
+.TP
+.B djpeg -pnm -gray text.jpg | gocr -
+convert a jpeg file to pnm format and input via pipe

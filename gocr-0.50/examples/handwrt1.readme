@@ -1,0 +1,10 @@
+
+ cs=GrayLevel=90..104..120  should work
+ cs=104: 84 boxes = 53 chars + 20 holes + 3 miniholes + 4 dots_above + 4 dust
+ 1 white pixel
+
+<text>
+ This  is  a handwritten
+ example  for  GOCR.
+ Write  as good as  you can.
+</text>

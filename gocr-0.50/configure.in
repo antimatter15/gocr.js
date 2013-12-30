@@ -1,0 +1,71 @@
+# see /usr/share/info/standards.info,autoconf.info (autoconf 2.57)
+dnl Process this file with autoconf to produce a configure script.
+dnl obsolete: AC_INIT(src/pgm2asc.c)
+AC_INIT(gocr,0.50,,)
+AC_PREREQ(2.50)
+AC_CONFIG_HEADERS([include/config.h])
+dnl AC_EXEEXT is obsolete now
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+dnl only needed for libPgm2asc.a, not for the rpm/ebuild
+dnl AC_PROG_RANLIB
+dnl AC_CHECK_PROG(AR,ar,ar)
+dnl needed for developpers to make examples, not for the rpm/ebuild
+dnl AC_CHECK_PROG(FIG2DEV,fig2dev,fig2dev)
+
+dnl Check for optional debug mode
+dnl debug makes program slow, but is very useful for developper
+dnl ToDo: how to check that c-flags are available?
+AC_ARG_WITH(debug,
+ [  --with-debug            switching on debugging (more verbose output)],
+ [ CPPFLAGS="-Wall -g -fexceptions -DDO_DEBUG=1 $CPPFLAGS" ])
+if test "$with_debug"; then echo "debugging enabled"; fi
+
+dnl Check for optional netpbm PACKAGE: --with-netpbm=no == --without-netpbm
+dnl LDFLAGS+=-R$withval/lib compiles the search path into the file ???
+AC_ARG_WITH(netpbm,
+ [  --with-netpbm=PATH      enter the PATH to netpbm package],
+ [ if test "$withval" != "no"; then
+    LDFLAGS="-L$withval/lib $LDFLAGS";\
+    CPPFLAGS="-I$withval/include $CPPFLAGS";\
+   fi ])
+if test -n "$with_netpbm"; then echo "option: with_netpbm $with_netpbm"; fi
+
+dnl Checks for libraries.
+if test "$with_netpbm" != "no"; then
+# netpbm-10.26 + SuSE-10.0: netpbm needs mathlib -lm
+# netpbm-10    : libnetpbm + pam.h (+ p[bgpn]m.h, libp[bgpn]m.so as links)
+# netpbm-9     : libpnm    + pnm.h (+ p[bgp]m.h)
+# pnm_readpaminit (netpbm-10)
+# pnm_readpnminit (netpbm-9,10)
+# ToDo: how to check that -lm is needed?
+LDFLAGS="-lm $LDFLAGS"
+AC_SEARCH_LIBS(pnm_readpnminit,[netpbm pnm],[check_netpbm_h="pam.h pnm.h"],
+ [ echo " * * * try option --with-netpbm=PATH"])
+fi
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([unistd.h wchar.h ${check_netpbm_h}])
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+dnl AC_CHECK_TYPE(wchar_t,unsigned)
+
+dnl Checks for library functions.
+dnl this macro produces a warning: AC_TRY_RUN called without default ...
+dnl The message can be ignored as long as you don't configure gOCR for 
+dnl cross-compiling.
+AC_FUNC_SETVBUF_REVERSED
+AC_CHECK_FUNCS(wcschr wcsdup gettimeofday popen)
+
+dnl Checks for system services
+
+dnl obsolete: AC_OUTPUT(Makefile src/Makefile doc/Makefile man/Makefile)
+dnl the light weight version of package comes without src/api
+AC_CONFIG_FILES([Makefile src/Makefile doc/Makefile man/Makefile])
+dnl AC_CONFIG_COMMANDS([default],,)
+AC_OUTPUT

@@ -1,0 +1,38 @@
+#! /bin/bash
+# v0.1   1st release
+# v0.2   0 added
+# v0.2a1 convert renamed to jconv  
+# v0.3   jconv replaced by convert (ImageMagick)
+#
+echo "create database ./db/db.lst ./db/db.log ./db/db_XXXX.pbm"
+if ! test -d db; then mkdir db; fi
+if test -r db/db.lst; then echo "database exist";exit; fi
+if ! test -x ./jconv; then make jconv; fi
+nc=0
+# roman typewriter italic bold-face slanted small caps sans-serif
+for font in "\rm" "\tt" "\it" "\bf" "\sl" "\sc" "\sf"; do
+  echo -n " font: $font "
+  for c in a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9; do
+    echo -n "$c"
+    cat << END >a.tex
+\documentclass[12pt]{article}\pagestyle{empty}
+\topmargin=-50mm \textheight=20mm \textwidth=20mm
+\oddsidemargin=-20mm \evensidemargin=-20mm
+\begin{document}
+$font $c
+\end{document}
+END
+    ns=$(printf "%04d" $nc)
+    echo "db_$ns.pbm $c $font" >>db/db.lst
+    latex a.tex >>db/db.log
+    # shift to left,bottom edge
+    dvips -E -O -0.3in,11.0in -T 4.0in,4.0in -o a.ps a.dvi 2>>db/db.log
+    # -q gs (0,0)=left,bottom
+    gs -dNOPAUSE -r600 -sPAPERSIZE=a10 -sDEVICE=pbmraw -sOutputFile=db/db_$ns.pbm - <a.ps >>db/db.log
+    convert -crop 0x0+1+1 db/db_$ns.pbm db/db_$ns.pbm 2>>db/db.log
+    nc=$(($nc + 1))
+  done 
+  echo ". ok"
+done 
+#rm -f a.tex
+echo "finished"
