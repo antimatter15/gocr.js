@@ -1,11 +1,11 @@
 <!doctype html>
 <html>
 	<head>
-		<title>GOCR.js</title>
+		<title>GOCR.js - Optical Character Recognition in Javascript</title>
 		<style>
 			body {
 				font-family: sans-serif;
-				background: #EEE;
+				background: #DCE9E9;
 			}
 			#main {
 				margin-right: auto;
@@ -14,7 +14,6 @@
 				width: 600px;
 			}
 			h1 {
-				padding-left: 50px;
 				font-size: 400%;
 				margin-top: 30px;
 
@@ -187,15 +186,21 @@
 
 				var worker = new Worker('worker.js')
 				worker.onmessage = function(e){
-					document.getElementById("text").innerText = e.data
-					document.getElementById('timing').innerText = 'recognition took ' + ((Date.now() - start)/1000).toFixed(2) + 's';
+					console.log(e.data)
+					if('innerText' in document.getElementById("text")){
+						document.getElementById("text").innerText = e.data
+					}else{
+						document.getElementById("text").textContent = e.data	
+					}
+					document.getElementById('timing').innerHTML = 'recognition took ' + ((Date.now() - start)/1000).toFixed(2) + 's';
 					worker.terminate();
 				}
 				var start = Date.now()
 				var image_data = o.getImageData(0, 0, c.width, c.height)
-				worker.postMessage(image_data, [image_data.data.buffer])
+				
+				worker.postMessage(image_data)
+
 				lastWorker = worker;
-				//  GOCR(c)
 			}
 
 			reset_canvas()
