@@ -26,11 +26,14 @@ function GOCR(image){
 		dst[j] = (src[i] * coeff_r + src[i+1] * coeff_g + src[i+2] * coeff_b + 8192) >> 14;
 	}
 	var recognizedText = "";
+	var utf8;
 	Module['preRun'] = function(){
+	  utf8 = new Runtime.UTF8Processor();
 	  FS.writeFile('/in.pnm', dst, { encoding: 'binary' })
 	}
+	
 	Module['stdout'] = function(x){
-		recognizedText += String.fromCharCode(x)
+		recognizedText += utf8.processCChar(x)
 	}
 	// Module['print'] = function(text) {
 	// console.log('print', text)

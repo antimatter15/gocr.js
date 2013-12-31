@@ -28,11 +28,15 @@ function GOCR(image){
 	}
 
 	var recognizedText = "";
+	var utf8;
 	Module['preRun'] = function(){
+	  utf8 = new Runtime.UTF8Processor();
 	  FS.writeFile('/in.pnm', dst, { encoding: 'binary' })
 	}
+
+	
 	Module['stdout'] = function(x){
-		recognizedText += String.fromCharCode(x)
+		recognizedText += utf8.processCChar(x)
 	}
 	// Module['print'] = function(text) {
 	// console.log('print', text)

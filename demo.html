@@ -262,8 +262,9 @@
 				return a;
 			}
 
-			fisher_yates(fonts);
-			fisher_yates(quotes);
+			
+			fonts = fisher_yates(fonts);
+			quotes = fisher_yates(quotes);
 
 			function da_word(){
 				reset_canvas()
